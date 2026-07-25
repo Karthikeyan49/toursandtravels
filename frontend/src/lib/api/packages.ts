@@ -170,7 +170,11 @@ export interface DepartureBoardRow extends Departure {
   days_to_departure: number;
 }
 
-export interface PackageDetail extends Package {
+/**
+ * `Package::detail()` overwrites the numeric `days` column with the itinerary
+ * rows before serialising, so this shape narrows rather than extends it.
+ */
+export interface PackageDetail extends Omit<Package, "days"> {
   days: PackageDay[];
   day_items: PackageDayItem[];
   prices: PackagePrice[];

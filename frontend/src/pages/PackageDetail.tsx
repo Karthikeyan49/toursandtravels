@@ -12,7 +12,6 @@ import {
   createPackagePrice,
   deactivatePackagePrice,
   DAY_MEAL_PLANS,
-  DEPARTURE_STATUSES,
   getPackage,
   PACKAGE_HOTEL_CATEGORIES,
   publishPackage,

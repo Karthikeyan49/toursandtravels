@@ -17,7 +17,6 @@ import {
   type DestinationListItem,
   type DestinationScope,
 } from "@/lib/api/destinations";
-import { isApiError } from "@/lib/api/client";
 import { humanize } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { toast } from "@/hooks/use-toast";

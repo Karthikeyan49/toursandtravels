@@ -1,5 +1,5 @@
 import { apiBlob, apiDelete, apiGet, apiList, apiPost, buildQuery } from "@/lib/api/client";
-import type { Decimal, Flag, ISODate, ISODateTime, Severity, TimeString } from "@/lib/api/common";
+import type { Decimal, ISODate, ISODateTime, Severity, TimeString } from "@/lib/api/common";
 import type { ServiceType, SupplierStatus } from "@/lib/api/bookings";
 
 /**

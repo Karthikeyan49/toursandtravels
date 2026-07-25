@@ -291,7 +291,9 @@ export default function Vouchers() {
         confirmLabel="Cancel voucher"
         destructive
         confirmDisabled={cancelReason.trim() === ""}
-        onConfirm={() => cancelMutation.mutateAsync()}
+        onConfirm={async () => {
+          await cancelMutation.mutateAsync();
+        }}
       >
         <Textarea value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} rows={3} placeholder="Reason…" />
       </ConfirmDialog>

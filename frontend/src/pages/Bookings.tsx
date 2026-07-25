@@ -15,7 +15,6 @@ import {
 import { listDestinationOptions } from "@/lib/api/destinations";
 import { listUsers } from "@/lib/api/users";
 import { formatDate, formatPax } from "@/lib/format";
-import { humanize } from "@/lib/utils";
 import { useDebounce } from "@/hooks/useDebounce";
 import { PageHeader } from "@/components/PageHeader";
 import { StatCard } from "@/components/StatCard";

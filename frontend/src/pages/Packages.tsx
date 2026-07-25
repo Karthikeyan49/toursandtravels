@@ -198,6 +198,13 @@ export default function Packages() {
               {PACKAGE_TYPES.map((t) => <SelectItem key={t} value={t}>{humanize(t)}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Select value={scope || "__all__"} onValueChange={(v) => { setScope(v === "__all__" ? "" : (v as DestinationScope)); setPage(1); }}>
+            <SelectTrigger className="w-40"><SelectValue placeholder="Scope" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">All scopes</SelectItem>
+              {DESTINATION_SCOPES.map((s) => <SelectItem key={s} value={s}>{humanize(s)}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Select value={status || "__all__"} onValueChange={(v) => { setStatus(v === "__all__" ? "" : (v as PackageStatus)); setPage(1); }}>
             <SelectTrigger className="w-36"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>

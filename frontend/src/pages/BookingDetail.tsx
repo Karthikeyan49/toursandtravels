@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -298,7 +298,6 @@ type InstalmentsFormValues = z.infer<typeof instalmentsSchema>;
 export default function BookingDetail() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { can } = useAuth();
 
@@ -312,7 +311,6 @@ export default function BookingDetail() {
 
   const canViewCosts = can("view_costs");
   const canViewMargins = can("view_margins");
-  const canEditPrices = can("edit_prices");
   const canRecordPayment = can("record_payment");
 
   const bookingQuery = useQuery({ queryKey: qk.bookings.detail(id), queryFn: () => getBooking(id), enabled: Number.isFinite(id) });

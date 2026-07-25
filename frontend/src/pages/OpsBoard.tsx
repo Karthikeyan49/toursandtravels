@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Car, CheckCircle2, ChevronLeft, ChevronRight } from "lucide-react";
 import { qk } from "@/lib/api/queries";
 import { DAYSHEET_STATUSES, flagDaysheetIssue, getOpsBoard, toggleDaysheetChecklist, type DaysheetStatus } from "@/lib/api/ops";
-import { formatDate, toISODate } from "@/lib/format";
+import { toISODate } from "@/lib/format";
 import { humanize } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/PageHeader";

@@ -43,13 +43,11 @@ import { humanize, toNumber } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-  applyApiErrors,
   DateField,
   NumberField,
   SelectField,
   SwitchField,
   TextField,
-  TextareaField,
   type SelectOption,
 } from "@/components/FormField";
 import { PageHeader } from "@/components/PageHeader";
@@ -61,7 +59,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import {
   Select,

@@ -6,7 +6,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, Pencil, Plus, Search } from "lucide-react";
 import { qk } from "@/lib/api/queries";
 import {
-  archiveHotel,
   createHotel,
   createHotelRate,
   createRoomType,
