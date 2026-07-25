@@ -75,7 +75,7 @@ export interface NumberingSeries {
   next: string;
 }
 
-/** Arbitrary company_*/bank_*/default_*/seq_* keys, or the small named allowlist. */
+/** Arbitrary company_, bank_, default_, seq_ prefixed keys, or the small named allowlist. */
 export type SettingsUpdateInput = Record<string, string | number | boolean | null>;
 
 export async function getSettings() {
