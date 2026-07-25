@@ -229,7 +229,6 @@ function ExpenseDialog({ expense, onOpenChange }: { expense: EditableExpense | n
       if (isEdit) {
         await updateExpense(expense.id, input);
         toast.success("Expense updated");
-        await queryClient.invalidateQueries({ queryKey: qk.expenses.detail(expense.id) });
       } else {
         await createExpense({ ...input, status: values.status });
         toast.success("Expense recorded");
@@ -608,29 +607,28 @@ export default function Expenses() {
   const summaryQuery = useQuery({ queryKey: qk.expenses.summary(baseFilters), queryFn: () => getExpenseSummary(baseFilters) });
   const categoriesQuery = useQuery({ queryKey: qk.expenses.categories, queryFn: listExpenseCategories });
 
-  const invalidate = async (id?: number) => {
-    if (id !== undefined) await queryClient.invalidateQueries({ queryKey: qk.expenses.detail(id) });
-    await queryClient.invalidateQueries({ queryKey: qk.expenses.all });
-  };
+  // qk.expenses.all is the resource root, so this also refreshes the open
+  // detail, the summary strip and the category picker.
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: qk.expenses.all });
 
   const submitMutation = useMutation({
     mutationFn: (id: number) => submitExpense(id),
-    onSuccess: async (expense) => { toast.success("Sent for approval"); await invalidate(expense.id); },
+    onSuccess: async () => { toast.success("Sent for approval"); await invalidate(); },
     onError: (error) => toast.fromError(error, "Could not submit this expense", true),
   });
 
   const approveMutation = useMutation({
     mutationFn: (id: number) => approveExpense(id),
-    onSuccess: async (expense) => { toast.success("Expense approved"); await invalidate(expense.id); },
+    onSuccess: async () => { toast.success("Expense approved"); await invalidate(); },
     onError: (error) => toast.fromError(error, "Could not approve this expense", true),
   });
 
   // The three below run inside ConfirmDialog, which reports failures itself.
   const rejectMutation = useMutation({
     mutationFn: (input: { id: number; reason: string }) => rejectExpense(input.id, input.reason),
-    onSuccess: async (expense) => {
+    onSuccess: async () => {
       toast.success("Expense rejected");
-      await invalidate(expense.id);
+      await invalidate();
       setRejectTarget(null);
       setReason("");
     },
@@ -638,9 +636,9 @@ export default function Expenses() {
 
   const voidMutation = useMutation({
     mutationFn: (input: { id: number; reason: string }) => voidExpense(input.id, input.reason),
-    onSuccess: async (expense) => {
+    onSuccess: async () => {
       toast.success("Expense voided");
-      await invalidate(expense.id);
+      await invalidate();
       setVoidTarget(null);
       setReason("");
     },
@@ -648,9 +646,9 @@ export default function Expenses() {
 
   const paidMutation = useMutation({
     mutationFn: (input: { id: number; paidOn?: string }) => markExpensePaid(input.id, input.paidOn),
-    onSuccess: async (expense) => {
+    onSuccess: async () => {
       toast.success("Expense marked paid");
-      await invalidate(expense.id);
+      await invalidate();
       setPaidTarget(null);
       setPaidOn("");
     },
@@ -934,7 +932,13 @@ export default function Expenses() {
         icon={Wallet}
         onConfirm={() => paidMutation.mutateAsync({ id: paidTarget!.id, paidOn: paidOn || undefined }).then(() => undefined)}
       >
-        <Input type="date" value={paidOn} onChange={(e) => setPaidOn(e.target.value)} aria-label="Paid on" />
+        <Input
+          type="date"
+          value={paidOn}
+          onChange={(e) => setPaidOn(e.target.value)}
+          max={new Date().toISOString().slice(0, 10)}
+          aria-label="Paid on"
+        />
       </ConfirmDialog>
     </div>
   );

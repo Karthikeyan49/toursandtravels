@@ -63,6 +63,14 @@ interface BookingRef {
   label: string;
 }
 
+/** The subset of a bill the approve/pay dialogs need — satisfied by both the list row and the detail. */
+interface BillRef {
+  id: number;
+  bill_no: string;
+  supplier_name: string;
+  outstanding: Decimal;
+}
+
 function BookingPicker({
   value,
   onSelect,
@@ -138,7 +146,9 @@ const billSchema = z.object({
 });
 type BillFormValues = z.infer<typeof billSchema>;
 
-const BILL_FIELDS = ["supplier_id", "bill_date", "supplier_ref_no", "due_date", "tds_amount", "notes", "items"] as const;
+// `items` and `booking_id` have no single control to attach a message to, so
+// they are left off deliberately — applyApiErrors routes them to the form root.
+const BILL_FIELDS = ["supplier_id", "bill_date", "supplier_ref_no", "due_date", "tds_amount", "notes"] as const;
 
 const EMPTY_LINE = { description: "", unit_cost: 0, quantity: 1, tax_pct: 0 };
 
@@ -147,7 +157,7 @@ function CreateBillDialog() {
   const [booking, setBooking] = useState<BookingRef | null>(null);
   const queryClient = useQueryClient();
 
-  const { control, handleSubmit, reset, setError, watch, formState: { isSubmitting } } = useForm<BillFormValues>({
+  const { control, handleSubmit, reset, setError, watch, formState: { errors, isSubmitting } } = useForm<BillFormValues>({
     resolver: zodResolver(billSchema),
     defaultValues: { items: [EMPTY_LINE] },
   });
@@ -319,6 +329,12 @@ function CreateBillDialog() {
             </div>
           </div>
 
+          {(errors.root?.serverError?.message ?? errors.items?.message) && (
+            <p role="alert" className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+              {errors.root?.serverError?.message ?? errors.items?.message}
+            </p>
+          )}
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={close} disabled={isSubmitting}>Cancel</Button>
             <Button type="submit" disabled={isSubmitting}>
@@ -348,7 +364,7 @@ type PayFormValues = z.infer<typeof paySchema>;
 
 const PAY_FIELDS = ["amount", "mode", "utr_no", "bank_account", "paid_on", "remarks"] as const;
 
-function PayBillDialog({ bill, onOpenChange }: { bill: SupplierBillListItem; onOpenChange: (open: boolean) => void }) {
+function PayBillDialog({ bill, onOpenChange }: { bill: BillRef; onOpenChange: (open: boolean) => void }) {
   const queryClient = useQueryClient();
   const outstanding = toNumber(bill.outstanding);
 
@@ -412,7 +428,7 @@ function PayBillDialog({ bill, onOpenChange }: { bill: SupplierBillListItem; onO
 // Detail
 // ---------------------------------------------------------------------------
 
-function Fact({ label, value }: { label: string; value: React.ReactNode }) {
+function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
@@ -429,8 +445,8 @@ function BillDetailSheet({
 }: {
   billId: number | null;
   onOpenChange: (open: boolean) => void;
-  onApprove: (id: number) => void;
-  onPay: (id: number) => void;
+  onApprove: (bill: BillRef) => void;
+  onPay: (bill: BillRef) => void;
 }) {
   const detailQuery = useQuery({
     queryKey: qk.supplierBills.detail(billId ?? 0),
@@ -553,12 +569,12 @@ function BillDetailSheet({
 
             <div className="flex flex-wrap gap-2">
               {bill.status === "draft" && (
-                <Button onClick={() => onApprove(bill.id)}>
+                <Button onClick={() => onApprove(bill)}>
                   <CheckCircle2 /> Approve for payment
                 </Button>
               )}
               {bill.status !== "draft" && bill.status !== "cancelled" && toNumber(bill.outstanding) > 0 && (
-                <Button variant="outline" onClick={() => onPay(bill.id)}>
+                <Button variant="outline" onClick={() => onPay(bill)}>
                   <Wallet /> Record payment
                 </Button>
               )}
@@ -589,8 +605,8 @@ export default function SupplierBills() {
   const [sort, setSort] = useState<SortState | undefined>(undefined);
 
   const [detailId, setDetailId] = useState<number | null>(null);
-  const [approveTarget, setApproveTarget] = useState<SupplierBillListItem | null>(null);
-  const [payTarget, setPayTarget] = useState<SupplierBillListItem | null>(null);
+  const [approveTarget, setApproveTarget] = useState<BillRef | null>(null);
+  const [payTarget, setPayTarget] = useState<BillRef | null>(null);
 
   const filters: SupplierBillFilters = useMemo(
     () => ({
@@ -626,18 +642,18 @@ export default function SupplierBills() {
 
   const suppliersQuery = useQuery({ queryKey: qk.suppliers.options(undefined), queryFn: () => listSupplierOptions() });
 
+  // No onError: this only runs inside ConfirmDialog, which surfaces the failure
+  // itself and keeps the dialog open so the user can retry.
   const approveMutation = useMutation({
     mutationFn: (id: number) => approveSupplierBill(id),
-    onSuccess: async (bill) => {
+    onSuccess: async () => {
       toast.success("Bill approved for payment");
       await queryClient.invalidateQueries({ queryKey: qk.supplierBills.all });
       setApproveTarget(null);
-      void bill;
     },
   });
 
   const rows = listQuery.data?.items ?? [];
-  const detailRow = rows.find((row) => row.id === detailId) ?? null;
 
   const columns: Column<SupplierBillListItem>[] = [
     {
@@ -813,14 +829,8 @@ export default function SupplierBills() {
       <BillDetailSheet
         billId={detailId}
         onOpenChange={(open) => { if (!open) setDetailId(null); }}
-        onApprove={(id) => {
-          const row = rows.find((r) => r.id === id);
-          if (row) setApproveTarget(row);
-        }}
-        onPay={(id) => {
-          const row = rows.find((r) => r.id === id);
-          if (row) setPayTarget(row);
-        }}
+        onApprove={setApproveTarget}
+        onPay={setPayTarget}
       />
 
       <ConfirmDialog
@@ -840,8 +850,6 @@ export default function SupplierBills() {
       {payTarget !== null && (
         <PayBillDialog bill={payTarget} onOpenChange={(open) => { if (!open) setPayTarget(null); }} />
       )}
-
-      {detailRow !== null && null}
     </div>
   );
 }
