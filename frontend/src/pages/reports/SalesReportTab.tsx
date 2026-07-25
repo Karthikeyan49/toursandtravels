@@ -9,7 +9,7 @@ import {
   type SalesReportFilters,
   type SalesReportRow,
 } from "@/lib/api/reports";
-import { formatNumber, formatPercent } from "@/lib/format";
+import { formatMoneyShort, formatNumber, formatPercent } from "@/lib/format";
 import { humanize } from "@/lib/utils";
 import { StatCard } from "@/components/StatCard";
 import { DataTable, type Column } from "@/components/DataTable";
@@ -161,7 +161,7 @@ export function SalesReportTab({ active, from, to }: { active: boolean; from: st
           value={totals ? <MoneyText value={totals.gross_revenue} short /> : "—"}
           icon={Wallet}
           tone="info"
-          hint={totals ? `Net ${formatNumber(totals.net_revenue)}` : undefined}
+          hint={totals ? `Net ${formatMoneyShort(totals.net_revenue)}` : undefined}
           loading={reportQuery.isLoading}
         />
         <StatCard
@@ -169,7 +169,7 @@ export function SalesReportTab({ active, from, to }: { active: boolean; from: st
           value={totals ? <MoneyText value={totals.margin} short colored /> : "—"}
           icon={TrendingUp}
           tone="positive"
-          hint={totals ? `Cost ${formatNumber(totals.estimated_cost)}` : undefined}
+          hint={totals ? `Cost ${formatMoneyShort(totals.estimated_cost)}` : undefined}
           loading={reportQuery.isLoading}
         />
         <StatCard
@@ -177,7 +177,7 @@ export function SalesReportTab({ active, from, to }: { active: boolean; from: st
           value={totals ? <MoneyText value={totals.collected} short /> : "—"}
           icon={Users}
           tone="warning"
-          hint={totals ? `Outstanding ${formatNumber(totals.outstanding)}` : undefined}
+          hint={totals ? `Outstanding ${formatMoneyShort(totals.outstanding)}` : undefined}
           loading={reportQuery.isLoading}
         />
       </div>
