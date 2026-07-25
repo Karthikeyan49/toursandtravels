@@ -194,7 +194,8 @@ CREATE TABLE IF NOT EXISTS import_jobs (
 CREATE TABLE IF NOT EXISTS import_job_rows (
   id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   job_id      BIGINT UNSIGNED NOT NULL,
-  row_number  INT UNSIGNED    NOT NULL,
+  -- Quoted: ROW_NUMBER is a reserved word from MySQL 8.0 / MariaDB 10.2 onward.
+  `row_number` INT UNSIGNED   NOT NULL,
   raw_json    TEXT            NOT NULL,
   status      ENUM('valid','error','imported','skipped') NOT NULL DEFAULT 'valid',
   error_text  VARCHAR(500)        NULL,
