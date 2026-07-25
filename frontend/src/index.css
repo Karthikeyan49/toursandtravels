@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Design tokens. Values are bare HSL triples ("173 80% 27%") so Tailwind can
+ * wrap them as hsl(var(--token) / <alpha>) and opacity modifiers keep working.
+ * Brand primary is teal #0F766E.
+ */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 173 80% 27%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 15%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 45%;
+
+    --accent: 173 44% 94%;
+    --accent-foreground: 173 80% 20%;
+
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 89%;
+    --ring: 173 80% 27%;
+
+    --radius: 0.6rem;
+
+    /* Deep-teal rail in light mode; the app canvas stays white. */
+    --sidebar-background: 175 55% 11%;
+    --sidebar-foreground: 173 22% 80%;
+    --sidebar-primary: 173 64% 44%;
+    --sidebar-primary-foreground: 175 60% 8%;
+    --sidebar-accent: 175 42% 18%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 175 38% 19%;
+    --sidebar-ring: 173 64% 44%;
+
+    --status-draft: 215 16% 42%;
+    --status-draft-bg: 214 32% 95%;
+    --status-pending: 33 90% 36%;
+    --status-pending-bg: 45 95% 92%;
+    --status-confirmed: 173 80% 27%;
+    --status-confirmed-bg: 173 52% 93%;
+    --status-vouchered: 262 66% 50%;
+    --status-vouchered-bg: 262 78% 96%;
+    --status-in-progress: 212 88% 42%;
+    --status-in-progress-bg: 212 94% 95%;
+    --status-completed: 152 58% 27%;
+    --status-completed-bg: 152 54% 93%;
+    --status-cancelled: 0 70% 45%;
+    --status-cancelled-bg: 0 84% 96%;
+    --status-paid: 158 68% 26%;
+    --status-paid-bg: 158 60% 93%;
+    --status-overdue: 12 80% 43%;
+    --status-overdue-bg: 14 88% 95%;
+    --status-won: 142 66% 27%;
+    --status-won-bg: 142 56% 93%;
+    --status-lost: 350 46% 44%;
+    --status-lost-bg: 350 60% 96%;
+
+    --chart-1: 173 80% 32%;
+    --chart-2: 212 88% 48%;
+    --chart-3: 33 88% 48%;
+    --chart-4: 262 62% 56%;
+    --chart-5: 340 62% 50%;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 96%;
+
+    --card: 222 44% 10%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 44% 10%;
+    --popover-foreground: 210 40% 96%;
+
+    /* Lifted from #0F766E — the print-brand teal is too dark to read on a
+       near-black canvas at body-text contrast. */
+    --primary: 173 66% 42%;
+    --primary-foreground: 175 60% 8%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 175 34% 20%;
+    --accent-foreground: 173 60% 82%;
+
+    --destructive: 0 62% 47%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 24%;
+    --ring: 173 66% 42%;
+
+    --sidebar-background: 222 47% 9%;
+    --sidebar-foreground: 215 20% 70%;
+    --sidebar-primary: 173 66% 46%;
+    --sidebar-primary-foreground: 175 60% 8%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 217 33% 18%;
+    --sidebar-ring: 173 66% 46%;
+
+    --status-draft: 215 20% 70%;
+    --status-draft-bg: 215 25% 18%;
+    --status-pending: 43 88% 62%;
+    --status-pending-bg: 40 42% 16%;
+    --status-confirmed: 173 60% 52%;
+    --status-confirmed-bg: 175 42% 15%;
+    --status-vouchered: 262 78% 76%;
+    --status-vouchered-bg: 262 32% 21%;
+    --status-in-progress: 212 90% 68%;
+    --status-in-progress-bg: 212 42% 19%;
+    --status-completed: 152 54% 55%;
+    --status-completed-bg: 152 38% 15%;
+    --status-cancelled: 0 78% 68%;
+    --status-cancelled-bg: 0 38% 19%;
+    --status-paid: 158 58% 52%;
+    --status-paid-bg: 158 38% 15%;
+    --status-overdue: 14 86% 66%;
+    --status-overdue-bg: 14 42% 18%;
+    --status-won: 142 58% 55%;
+    --status-won-bg: 142 38% 15%;
+    --status-lost: 350 58% 68%;
+    --status-lost-bg: 350 28% 19%;
+
+    --chart-1: 173 62% 48%;
+    --chart-2: 212 84% 62%;
+    --chart-3: 33 84% 58%;
+    --chart-4: 262 62% 68%;
+    --chart-5: 340 62% 62%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Money and document numbers must align across rows. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Radix locks scroll on the body when a dialog opens; keeping the gutter
+     stops the whole layout shifting by the scrollbar width. */
+  html {
+    scrollbar-gutter: stable;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply rounded-full;
+    background-color: hsl(var(--border));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+@layer components {
+  /* Applied by DataTable's scroll container and any wide report block. */
+  .scroll-x {
+    @apply overflow-x-auto overscroll-x-contain;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+}

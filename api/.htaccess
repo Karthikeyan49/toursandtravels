@@ -1,0 +1,116 @@
+# Tours & Travel ERP — API front controller and hardening.
+#
+# In production the PHP application lives ABOVE the web root and public_html/api
+# is a thin bridge, so nothing here is reachable at all. This file is the second
+# line of defence for the case where api/ is served directly (local development,
+# or a host that cannot place code outside the docroot).
+#
+# Everything that is not a real file is routed to index.php; everything that IS a
+# real file but should never be fetched is refused with a 403.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+
+# ---------------------------------------------------------------------------
+# Refuse source directories and sensitive file types.
+# The rewrite rules below are the primary control; the <FilesMatch> block after
+# them still applies on a server without mod_rewrite.
+# ---------------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Application source. None of these is ever a legitimate HTTP target.
+    RewriteRule ^(config|core|models|helpers|middleware|services|controllers|migrations|tests|cron)/ - [F,L]
+
+    # Schema dumps, environment files, logs, notes and lock/manifest files.
+    RewriteRule \.(sql|env|log|md|json|ini|yml|yaml|bak|swp|dist)$ - [F,L]
+
+    # PHP's default error log has no extension, so it needs its own rule.
+    RewriteRule (^|/)error_log$ - [F,L]
+
+    # Dotfiles, including .env, .git and this file.
+    RewriteRule (^|/)\. - [F,L]
+
+    # Front controller: anything that is not an existing file or directory.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+<FilesMatch "\.(sql|env|log|md|json|ini|yml|yaml|bak|swp|dist)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<FilesMatch "^(error_log|\.env.*|\.htaccess|\.htpasswd|\.git.*)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# install.php creates the bootstrap owner account and is CLI-only in code; this
+# refuses it over HTTP as well, so a misconfigured PHP SAPI cannot expose it.
+<Files "install.php">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</Files>
+
+# ---------------------------------------------------------------------------
+# PHP runtime. Guarded by <IfModule> because php_flag is a hard 500 under
+# PHP-FPM / CGI, where these are set in the pool configuration instead.
+# ---------------------------------------------------------------------------
+
+<IfModule mod_php.c>
+    php_flag display_errors off
+    php_flag log_errors on
+    php_flag expose_php off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag display_errors off
+    php_flag log_errors on
+    php_flag expose_php off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag display_errors off
+    php_flag log_errors on
+    php_flag expose_php off
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Response headers. index.php sets these too; doing it here as well means they
+# survive a static 403/404 served by Apache without ever reaching PHP.
+# ---------------------------------------------------------------------------
+
+<IfModule mod_headers.c>
+    Header always set Content-Security-Policy "default-src 'none'; frame-ancestors 'none'"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer"
+    Header always unset X-Powered-By
+    Header unset X-Powered-By
+</IfModule>
+
+# The Authorization header is stripped by some CGI/FastCGI setups before PHP
+# sees it, which breaks every bearer token.
+<IfModule mod_rewrite.c>
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>
+<IfModule mod_setenvif.c>
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
