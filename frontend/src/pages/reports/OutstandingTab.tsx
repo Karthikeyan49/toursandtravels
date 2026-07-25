@@ -57,9 +57,7 @@ export function OutstandingTab({ active }: { active: boolean }) {
   const exportParams: ExportParams = useMemo(() => ({ ...filters }), [filters]);
 
   const reportQuery = useQuery({
-    // `qk.reports.outstanding` is a fixed key; the filters are appended so a
-    // filter change refetches instead of reusing another filter's rows.
-    queryKey: [...qk.reports.outstanding, filters],
+    queryKey: qk.reports.outstanding(filters),
     queryFn: () => getOutstandingReport(filters),
     enabled: active,
   });

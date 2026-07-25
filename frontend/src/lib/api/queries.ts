@@ -87,7 +87,7 @@ export const qk = {
     margin: (filters?: Filters) => ["reports", "margin", filters ?? {}] as const,
     supplierPerformance: (filters?: Filters) => ["reports", "supplier-performance", filters ?? {}] as const,
     paxManifest: (departureId: number) => ["reports", "pax-manifest", departureId] as const,
-    outstanding: ["reports", "outstanding"] as const,
+    outstanding: (filters?: Filters) => ["reports", "outstanding", filters ?? {}] as const,
     leadSourceRoi: (filters?: Filters) => ["reports", "lead-source-roi", filters ?? {}] as const,
   },
 
